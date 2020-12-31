@@ -33,11 +33,9 @@ class ServiceTestClass {
 	
 	func imReady() -> Bool {
 		
-		delegate |> { delegate in
-			
-			delegate.doThis()
-			
-		}
+        delegate.invokeDelegates { delegate in
+            delegate.doThis()
+        }
 
 		return true
 	}
@@ -91,11 +89,11 @@ class MulticastDelegateDemoTests: XCTestCase {
         
         autoreleasepool {
             let demoDelegateClass = DelegateTestClass()
-            multicastDelegate += demoDelegateClass
+            multicastDelegate.addDelegate(demoDelegateClass)
         }
         
         var delegatesCalled = 0
-        multicastDelegate |> { _ in
+        multicastDelegate.invokeDelegates { _ in
             delegatesCalled += 1
         }
         
@@ -108,11 +106,11 @@ class MulticastDelegateDemoTests: XCTestCase {
         
         autoreleasepool {
             let demoDelegateClass = DelegateTestClass()
-            multicastDelegate += demoDelegateClass
+            multicastDelegate.addDelegate(demoDelegateClass)
         }
         
         var delegatesCalled = 0
-        multicastDelegate |> { _ in
+        multicastDelegate.invokeDelegates { _ in
             delegatesCalled += 1
         }
         
@@ -127,8 +125,7 @@ class MulticastDelegateDemoTests: XCTestCase {
         autoreleasepool {
             
             let delegate = CopyTestDelegate(value: 42)
-            multicastDelegate += delegate
-            
+            multicastDelegate.addDelegate(delegate)
             weakDelegate = delegate
         }
 		
@@ -143,17 +140,13 @@ class MulticastDelegateDemoTests: XCTestCase {
 		let multicastDelegate = MulticastDelegate<TestDelegate>()
 		let demoDelegateClass = DelegateTestClass()
 		
-		multicastDelegate += demoDelegateClass
-		
+        multicastDelegate.addDelegate(demoDelegateClass)
 		
 		var delegatesCalled = 0
-		multicastDelegate |> { delegate in
-			
-			delegate.doThis()
-			
-			delegatesCalled += 1
-			
-		}
+        multicastDelegate.invokeDelegates { delegate in
+            delegate.doThis()
+            delegatesCalled += 1
+        }
 		
 		XCTAssertEqual(delegatesCalled,1)
 
@@ -164,30 +157,25 @@ class MulticastDelegateDemoTests: XCTestCase {
 		let multicastDelegate = MulticastDelegate<TestDelegate>()
 		let demoDelegateClass = DelegateTestClass()
 		let demoDelegateClass2 = DelegateTestClass()
-		
-		multicastDelegate += demoDelegateClass
-		multicastDelegate += demoDelegateClass2
-		
+        
+        multicastDelegate.addDelegate(demoDelegateClass)
+        multicastDelegate.addDelegate(demoDelegateClass2)
 		
 		var delegatesCalled = 0
-		multicastDelegate |> { delegate in
-			
-			delegatesCalled += 1
-			
-			delegate.doThis(value: delegatesCalled)
-		}
+        multicastDelegate.invokeDelegates { delegate in
+            delegatesCalled += 1
+            delegate.doThis(value: delegatesCalled)
+        }
 		
 		XCTAssert(delegatesCalled == 2,"Must be 2")
 		
-		multicastDelegate -= demoDelegateClass2
-		multicastDelegate -= demoDelegateClass
+        multicastDelegate.removeDelegate(demoDelegateClass2)
+        multicastDelegate.removeDelegate(demoDelegateClass)
 		delegatesCalled = 0
-		multicastDelegate |> { delegate in
-			
-			delegatesCalled += 1
-			
-			delegate.doThis(value: delegatesCalled)
-		}
+        multicastDelegate.invokeDelegates { delegate in
+            delegatesCalled += 1
+            delegate.doThis(value: delegatesCalled)
+        }
 		XCTAssertEqual(delegatesCalled,0)
 		
 	}
@@ -197,7 +185,7 @@ class MulticastDelegateDemoTests: XCTestCase {
 		let service = ServiceTestClass()
 		let demoDelegateClass = DelegateTestClass()
 		
-		service.delegate += demoDelegateClass
+        service.delegate.addDelegate(demoDelegateClass)
 		
 		XCTAssertTrue(service.imReady(),"Ready failed")
 		
@@ -208,16 +196,13 @@ class MulticastDelegateDemoTests: XCTestCase {
 		let multicastDelegate = MulticastDelegate<TestDelegate>()
 		let myStruct = TestStruct()
 		
-		multicastDelegate += myStruct
-		
+        multicastDelegate.addDelegate(myStruct)
+        
 		var delegatesCalled = 0
-		multicastDelegate |> { delegate in
-			
-			delegatesCalled += 1
-			
-			delegate.doThis(value: delegatesCalled)
-		}
-		
+        multicastDelegate.invokeDelegates { delegate in
+            delegatesCalled += 1
+            delegate.doThis(value: delegatesCalled)
+        }
 		XCTAssertEqual(delegatesCalled,0)
 		
 	}
@@ -230,15 +215,12 @@ class MulticastDelegateDemoTests: XCTestCase {
 		autoreleasepool {
 			var demoDelegateClass: DelegateTestClass? = DelegateTestClass()
 			
-			multicastDelegate += demoDelegateClass!
+            multicastDelegate.addDelegate(demoDelegateClass!)
 			
-			multicastDelegate |> { delegate in
-				
-				delegate.doThis()
-				
-				delegatesCalled += 1
-				
-			}
+            multicastDelegate.invokeDelegates { delegate in
+                delegate.doThis()
+                delegatesCalled += 1
+            }
 			XCTAssertEqual(delegatesCalled,1)
 			
 			
@@ -246,14 +228,10 @@ class MulticastDelegateDemoTests: XCTestCase {
 		}
 		
 		delegatesCalled = 0
-		multicastDelegate |> { delegate in
-			
-			delegate.doThis()
-			
-			delegatesCalled += 1
-			
-		}
-		
+        multicastDelegate.invokeDelegates { delegate in
+            delegate.doThis()
+            delegatesCalled += 1
+        }
 		
 		XCTAssertEqual(delegatesCalled,0)
 		
@@ -262,7 +240,7 @@ class MulticastDelegateDemoTests: XCTestCase {
     func testContainsDelegateStructReturnsFalse() {
         let multicastDelegate = MulticastDelegate<TestDelegate>()
         let myStruct = TestStruct()
-        multicastDelegate += myStruct   // isn't actually allowed
+        multicastDelegate.addDelegate(myStruct) // isn't actually allowed
     
         XCTAssertFalse(multicastDelegate.containsDelegate(myStruct))
     }
@@ -271,7 +249,7 @@ class MulticastDelegateDemoTests: XCTestCase {
         
         let multicastDelegate = MulticastDelegate<TestDelegate>()
         let delegate = DelegateTestClass()
-        multicastDelegate += delegate
+        multicastDelegate.addDelegate(delegate)
         
         XCTAssertTrue(multicastDelegate.containsDelegate(delegate))
     }
@@ -288,34 +266,35 @@ class MulticastDelegateDemoTests: XCTestCase {
         
         let multicastDelegate = MulticastDelegate<TestDelegate>()
         
-        XCTAssertTrue(multicastDelegate.isEmpty)
+        XCTAssertTrue(multicastDelegate.delegates.allObjects.isEmpty)
     }
     
     func testNotEmptyAfterAdd() {
         
         let multicastDelegate = MulticastDelegate<TestDelegate>()
-        multicastDelegate += DelegateTestClass()
+        multicastDelegate.addDelegate(DelegateTestClass())
         
-        XCTAssertFalse(multicastDelegate.isEmpty)
+        XCTAssertFalse(multicastDelegate.delegates.allObjects.isEmpty)
     }
     
     func testNotEmptyAfterDoubleAdd() {
         
         let multicastDelegate = MulticastDelegate<TestDelegate>()
-        multicastDelegate += DelegateTestClass()
-        multicastDelegate += DelegateTestClass()
-        
-        XCTAssertFalse(multicastDelegate.isEmpty)
+
+        multicastDelegate.addDelegate(DelegateTestClass())
+        multicastDelegate.addDelegate(DelegateTestClass())
+        XCTAssertFalse(multicastDelegate.delegates.allObjects.isEmpty)
     }
     
     func testEmptyAfterAddAndDelete() {
         
         let multicastDelegate = MulticastDelegate<TestDelegate>()
         let delegate = DelegateTestClass()
-        multicastDelegate += delegate
-        multicastDelegate -= delegate
+
+        multicastDelegate.addDelegate(delegate)
+        multicastDelegate.removeDelegate(delegate)
         
-        XCTAssertTrue(multicastDelegate.isEmpty)
+        XCTAssertTrue(multicastDelegate.delegates.allObjects.isEmpty)
     }
     
 }

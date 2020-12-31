@@ -24,12 +24,9 @@ class DemoService {
 		let delayTime = DispatchTime.now() + Double(Int64(1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
 		DispatchQueue.main.asyncAfter(deadline: delayTime) { [unowned self] () -> Void in
 			
-			self.delegate |> { delegate in
-				
-				delegate.gotYourData(value)
-				
-			}
-			
+            self.delegate.invokeDelegates { delegate in
+                delegate.gotYourData(value)
+            }
 		}
 		
 	}

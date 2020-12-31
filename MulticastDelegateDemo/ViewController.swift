@@ -19,7 +19,7 @@ class ViewController: UIViewController, DemoServiceDelegate {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 	
-		dataService.delegate += self
+        dataService.delegate.addDelegate(self)
 	}
 
 	@IBAction func getDataTapped(_ sender: AnyObject) {

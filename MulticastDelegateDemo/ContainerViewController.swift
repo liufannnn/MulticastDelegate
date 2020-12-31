@@ -17,7 +17,7 @@ class ContainerViewController: UIViewController, DemoServiceDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 		
-		dataService.delegate += self
+        dataService.delegate.addDelegate(self)
     }
 
 	
